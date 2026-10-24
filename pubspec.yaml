@@ -9,8 +9,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+
+
+
+  cached_network_image: ^3.3.1
+
+
+  # (Optionnel) picker natif mobile
+  image_picker: ^1.1.2
+
+  google_fonts: ^6.1.0
+  carousel_slider: ^4.2.1
+  flutter_rating_bar: ^4.0.1
   cupertino_icons: ^1.0.8
-  # Nouvelles dépendances à ajouter
+
   http: ^1.2.1
   provider: ^6.1.1
   shared_preferences: ^2.2.2
@@ -21,12 +34,18 @@ dependencies:
   loading_animation_widget: ^1.2.0
   syncfusion_flutter_charts: ^24.1.50
   flutter_typeahead: ^4.4.0
-  image_picker: ^1.1.1
+
+  file_picker: ^8.0.7
+  path: ^1.9.0
+  url_launcher: ^6.3.0          # ✅ NOUVEAU (pour tel:)
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+dependency_overrides:
+  flutter_keyboard_visibility: 6.0.0
 
 flutter:
   uses-material-design: true

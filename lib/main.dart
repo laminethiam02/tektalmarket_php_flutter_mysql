@@ -1,57 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'config/api_config.dart';
-import 'models/user_model.dart';
-import 'screens/auth/login_screen.dart';
-import 'screens/dashboard/dashboard_screen.dart';
+import 'package:intl/date_symbol_data_local.dart'; // <-- 1. AJOUTER CET IMPORT
 
-Future<void> main() async {
+import 'providers/auth_provider.dart';
+import 'providers/category_provider.dart';
+import 'providers/product_provider.dart';
+import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'theme/app_theme.dart';
+
+// <-- 2. RENDRE LA FONCTION ASYNCHRONE
+void main() async {
+  // <-- 3. INITIALISER LES SERVICES FLUTTER (Obligatoire sur le Web avant l'await)
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
 
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
+  // <-- 4. INITIALISER LA LANGUE FRANÇAISE POUR INTL
+  await initializeDateFormatting('fr_FR', null);
 
-  runApp(MyApp(token: token));
+  runApp(const ApiMarcheApp());
 }
 
-class MyApp extends StatelessWidget {
-  final String? token;
-
-  const MyApp({Key? key, this.token}) : super(key: key);
+class ApiMarcheApp extends StatelessWidget {
+  const ApiMarcheApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => UserModel()),
-        Provider(create: (_) => ApiConfig()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()..bootstrap()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
       ],
       child: MaterialApp(
-        title: 'Gestion de Vente',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          scaffoldBackgroundColor: Colors.grey[50],
-          appBarTheme: const AppBarTheme(
-            elevation: 0,
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
+        title: 'Api Marché',
         debugShowCheckedModeBanner: false,
-        home: token != null ? const DashboardScreen() : const LoginScreen(),
-        routes: {
-          '/login': (context) => const LoginScreen(),
-          '/dashboard': (context) => const DashboardScreen(),
-        },
+        theme: AppTheme.light(),
+        home: const _AuthGate(),
       ),
     );
+  }
+}
+
+class _AuthGate extends StatelessWidget {
+  const _AuthGate();
+  @override
+  Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    if (auth.loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    return auth.isAuthenticated ? const HomeScreen() : const LoginScreen();
   }
 }

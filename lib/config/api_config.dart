@@ -1,24 +1,16 @@
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 class ApiConfig {
-  static String get baseUrl => dotenv.get('API_BASE_URL', fallback: 'http://localhost/gestion_vente');
-  static int get timeout => int.parse(dotenv.get('API_TIMEOUT', fallback: '30000'));
+  // Android Emulator : http://10.0.2.2/api-marche
+  // iOS/Web/Desktop : http://localhost/api-marche
+  static const String baseUrl = 'http://localhost/api-marche';
 
-  static Future<Map<String, String>> getHeaders() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+  static const String authEndpoint       = '$baseUrl/api/auth';
+  static const String usersEndpoint      = '$baseUrl/api/users';
+  static const String categoriesEndpoint = '$baseUrl/api/categories';
+  static const String productsEndpoint   = '$baseUrl/api/products';
 
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
-  }
-
-  static String getFullUrl(String endpoint) {
-    if (endpoint.startsWith('http')) return endpoint;
-    return '$baseUrl/$endpoint';
+  static String? imageUrl(String? path) {
+    if (path == null || path.isEmpty) return null;
+    if (path.startsWith('http')) return path;
+    return '$baseUrl$path';
   }
 }

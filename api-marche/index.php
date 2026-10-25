@@ -24,20 +24,23 @@ $authCtrl     = new AuthController();
 $userCtrl     = new UserController();
 $categoryCtrl = new CategoryController();
 $productCtrl  = new ProductController();
+$convCtrl     = new ConversationController();
+$msgCtrl      = new MessageController();
+$notifCtrl    = new NotificationController();
 
 try {
-    /* --------- AUTH --------- */
+    /* AUTH */
     if ($uri === '/api/auth/register' && $method === 'POST') { $authCtrl->register(); exit; }
     if ($uri === '/api/auth/login'    && $method === 'POST') { $authCtrl->login(); exit; }
     if ($uri === '/api/auth/me'       && $method === 'GET')  { $authCtrl->me(); exit; }
 
-    /* --------- USERS --------- */
+    /* USERS */
     if ($uri === '/api/users/profile' && $method === 'PUT')  { $userCtrl->updateProfile(); exit; }
     if (preg_match('#^/api/users/(\d+)$#', $uri, $m) && $method === 'GET') {
         $userCtrl->getPublicProfile((int)$m[1]); exit;
     }
 
-    /* --------- CATEGORIES --------- */
+    /* CATEGORIES */
     if ($uri === '/api/categories') {
         if ($method === 'GET')  { $categoryCtrl->getAll();   exit; }
         if ($method === 'POST') { $categoryCtrl->create();   exit; }
@@ -50,7 +53,7 @@ try {
         if ($method === 'DELETE') { $categoryCtrl->delete($id);  exit; }
     }
 
-    /* --------- PRODUCTS --------- */
+    /* PRODUCTS */
     if ($uri === '/api/products') {
         if ($method === 'GET')  { $productCtrl->getAll();    exit; }
         if ($method === 'POST') { $productCtrl->create();    exit; }
@@ -67,6 +70,39 @@ try {
         if ($method === 'GET')    { $productCtrl->getById($id); exit; }
         if ($method === 'PUT')    { $productCtrl->update($id);  exit; }
         if ($method === 'DELETE') { $productCtrl->delete($id);  exit; }
+    }
+
+    /* ---------- CONVERSATIONS ---------- */
+    if ($uri === '/api/conversations') {
+        if ($method === 'GET')  { $convCtrl->getAll();  exit; }
+        if ($method === 'POST') { $convCtrl->create();  exit; }
+    }
+    if (preg_match('#^/api/conversations/(\d+)$#', $uri, $m) && $method === 'GET') {
+        $convCtrl->getById((int)$m[1]); exit;
+    }
+    if (preg_match('#^/api/conversations/(\d+)/messages$#', $uri, $m)) {
+        if ($method === 'GET')  { $msgCtrl->getMessages((int)$m[1]); exit; }
+        if ($method === 'POST') { $msgCtrl->send((int)$m[1]);        exit; }
+    }
+    if ($uri === '/api/messages/unread-count' && $method === 'GET') {
+        $msgCtrl->unreadCount(); exit;
+    }
+
+    /* ---------- NOTIFICATIONS ---------- */
+    if ($uri === '/api/notifications' && $method === 'GET') {
+        $notifCtrl->getAll(); exit;
+    }
+    if ($uri === '/api/notifications/unread-count' && $method === 'GET') {
+        $notifCtrl->unreadCount(); exit;
+    }
+    if ($uri === '/api/notifications/read-all' && $method === 'PUT') {
+        $notifCtrl->markAllRead(); exit;
+    }
+    if (preg_match('#^/api/notifications/(\d+)/read$#', $uri, $m) && $method === 'PUT') {
+        $notifCtrl->markRead((int)$m[1]); exit;
+    }
+    if (preg_match('#^/api/notifications/(\d+)$#', $uri, $m) && $method === 'DELETE') {
+        $notifCtrl->delete((int)$m[1]); exit;
     }
 
     http_response_code(404);
